@@ -1,0 +1,31 @@
+services:
+  # Backend service: Django
+  backend:
+    #image: mealplan-prepper-backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    volumes:
+      - ./mealplan-prepper-backend:/app
+    working_dir: /app
+    environment:
+      - DEBUG=1
+      - DJANGO_SETTINGS_MODULE=mealplan_prepper_backend.settings.dev
+
+  # Frontend service: Vue.js
+  frontend:
+    image: node:20-alpine
+    volumes:
+      - ./mealplan-prepper-frontend:/app
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    environment:
+      - NODE_ENV=development
+
+  proxy:
+    image: nginx:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./dev.nginx.config:/etc/nginx/conf.d/default.conf
